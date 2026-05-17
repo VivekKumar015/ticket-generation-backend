@@ -3,11 +3,13 @@ package com.ticketsystem.config;
 import com.ticketsystem.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.config.annotation.authentication.configuration.*;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.web.*;
@@ -26,12 +28,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configure(http))
+            .cors(Customizer.withDefaults())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
-                .requestMatchers("/api/employee/**").hasAnyRole("SUPER_ADMIN", "SUPPORT_EMPLOYEE")
+                .requestMatchers("/api/tickets/my").authenticated()
+                .requestMatchers("/api/tickets/assigned").authenticated()
+                .requestMatchers("/api/tickets/search").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/tickets").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/tickets/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/tickets/**").authenticated()
+                .requestMatchers("/api/projects/**").authenticated()
+                .requestMatchers("/api/tickets/{ticketId}/comments/**").authenticated()
+                .requestMatchers("/api/users/me").authenticated()
+                .requestMatchers("/api/dashboard/admin").hasRole("SUPER_ADMIN")
+                .requestMatchers("/api/users/employees").hasRole("SUPER_ADMIN")
+                .requestMatchers("/api/users").hasRole("SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
