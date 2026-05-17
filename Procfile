@@ -1,0 +1,1 @@
+web: java -jar target/ticket-management-1.0.0.jar
