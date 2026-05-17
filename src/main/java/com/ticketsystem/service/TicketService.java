@@ -107,10 +107,10 @@ public class TicketService {
     }
 
     public List<TicketResponse> getAllTickets() {
-        return ticketRepository.findAll().stream()
-            .map(this::mapToResponse).collect(Collectors.toList());
+        return ticketRepository.findAllWithDetails().stream()
+            .map(this::mapToResponse)
+            .collect(Collectors.toList());
     }
-
     public List<TicketResponse> getTicketsByUser(String email) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));

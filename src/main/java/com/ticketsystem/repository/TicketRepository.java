@@ -8,11 +8,32 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    List<Ticket> findByCreatedBy(User user);
+    @Query("SELECT t FROM Ticket t " +
+           "LEFT JOIN FETCH t.createdBy " +
+           "LEFT JOIN FETCH t.assignedTo " +
+           "LEFT JOIN FETCH t.project " +
+           "WHERE t.createdBy = :user")
+    List<Ticket> findByCreatedBy(@Param("user") User user);
 
-    List<Ticket> findByAssignedTo(User employee);
+    @Query("SELECT t FROM Ticket t " +
+           "LEFT JOIN FETCH t.createdBy " +
+           "LEFT JOIN FETCH t.assignedTo " +
+           "LEFT JOIN FETCH t.project " +
+           "WHERE t.assignedTo = :employee")
+    List<Ticket> findByAssignedTo(@Param("employee") User employee);
 
-    List<Ticket> findByStatus(TicketStatus status);
+    @Query("SELECT t FROM Ticket t " +
+           "LEFT JOIN FETCH t.createdBy " +
+           "LEFT JOIN FETCH t.assignedTo " +
+           "LEFT JOIN FETCH t.project " +
+           "WHERE t.status = :status")
+    List<Ticket> findByStatus(@Param("status") TicketStatus status);
+
+    @Query("SELECT t FROM Ticket t " +
+           "LEFT JOIN FETCH t.createdBy " +
+           "LEFT JOIN FETCH t.assignedTo " +
+           "LEFT JOIN FETCH t.project")
+    List<Ticket> findAllWithDetails();
 
     List<Ticket> findByPriority(Priority priority);
 
@@ -22,12 +43,15 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     Long countByAssignedTo(User employee);
 
-    @Query("SELECT t FROM Ticket t WHERE " +
-           "(:status IS NULL OR t.status = :status) AND " +
-           "(:priority IS NULL OR t.priority = :priority) AND " +
-           "(:assignedToId IS NULL OR t.assignedTo.id = :assignedToId) AND " +
-           "(:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%',:search,'%')) " +
-           " OR LOWER(t.ticketNumber) LIKE LOWER(CONCAT('%',:search,'%')))")
+    @Query("SELECT t FROM Ticket t " +
+           "LEFT JOIN FETCH t.createdBy " +
+           "LEFT JOIN FETCH t.assignedTo " +
+           "LEFT JOIN FETCH t.project " +
+           "WHERE (:status IS NULL OR t.status = :status) " +
+           "AND (:priority IS NULL OR t.priority = :priority) " +
+           "AND (:assignedToId IS NULL OR t.assignedTo.id = :assignedToId) " +
+           "AND (:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%',:search,'%')) " +
+           "OR LOWER(t.ticketNumber) LIKE LOWER(CONCAT('%',:search,'%')))")
     List<Ticket> searchTickets(
         @Param("status") TicketStatus status,
         @Param("priority") Priority priority,
