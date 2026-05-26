@@ -1,15 +1,10 @@
 package com.ticketsystem.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Comment {
 
     @Id
@@ -32,4 +27,16 @@ public class Comment {
 
     @PrePersist
     protected void onCreate() { createdAt = LocalDateTime.now(); }
+
+    // GETTERS
+    public Long getId() { return id; }
+    public String getContent() { return content; }
+    public Ticket getTicket() { return ticket; }
+    public User getAuthor() { return author; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    // SETTERS
+    public void setContent(String content) { this.content = content; }
+    public void setTicket(Ticket ticket) { this.ticket = ticket; }
+    public void setAuthor(User author) { this.author = author; }
 }

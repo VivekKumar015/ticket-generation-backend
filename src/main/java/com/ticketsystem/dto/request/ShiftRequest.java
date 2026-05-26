@@ -1,16 +1,17 @@
 package com.ticketsystem.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
-@Data
 public class ShiftRequest {
-    @NotBlank
     private String name;
-    @NotNull
-    private String startTime;  // "09:00"
-    @NotNull
-    private String endTime;    // "18:00"
+    private String startTime;
+    private String endTime;
     private String timezone;
+
+    public String getName() { return name; }
+    public String getStartTime() { return startTime; }
+    public String getEndTime() { return endTime; }
+    public String getTimezone() { return timezone; }
+    public void setName(String name) { this.name = name; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
+    public void setEndTime(String endTime) { this.endTime = endTime; }
+    public void setTimezone(String timezone) { this.timezone = timezone; }
 }

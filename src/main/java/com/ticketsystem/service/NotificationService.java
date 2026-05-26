@@ -13,9 +13,17 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     public void sendNotification(User user, String message, String type, Ticket ticket) {
-        notificationRepository.save(Notification.builder()
-            .user(user).message(message).type(type)
-            .ticket(ticket).isRead(false).build());
+        try {
+            Notification notification = new Notification();
+            notification.setUser(user);
+            notification.setMessage(message);
+            notification.setType(type);
+            notification.setTicket(ticket);
+            notification.setIsRead(false);
+            notificationRepository.save(notification);
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
     }
 
     public List<Notification> getNotificationsForUser(User user) {

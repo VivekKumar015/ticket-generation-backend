@@ -1,15 +1,10 @@
 package com.ticketsystem.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "projects")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Project {
 
     @Id
@@ -22,15 +17,12 @@ public class Project {
     private String projectCode;
     private String description;
     private String supportEmail;
-
-    @Builder.Default
     private Integer slaHours = 24;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shift_id")
     private Shift shift;
 
-    @Builder.Default
     private Boolean active = true;
 
     @Column(nullable = false, updatable = false)
@@ -43,4 +35,25 @@ public class Project {
 
     @PreUpdate
     protected void onUpdate() { updatedAt = LocalDateTime.now(); }
+
+    // GETTERS
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public String getProjectCode() { return projectCode; }
+    public String getDescription() { return description; }
+    public String getSupportEmail() { return supportEmail; }
+    public Integer getSlaHours() { return slaHours; }
+    public Shift getShift() { return shift; }
+    public Boolean getActive() { return active; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // SETTERS
+    public void setName(String name) { this.name = name; }
+    public void setProjectCode(String projectCode) { this.projectCode = projectCode; }
+    public void setDescription(String description) { this.description = description; }
+    public void setSupportEmail(String supportEmail) { this.supportEmail = supportEmail; }
+    public void setSlaHours(Integer slaHours) { this.slaHours = slaHours; }
+    public void setShift(Shift shift) { this.shift = shift; }
+    public void setActive(Boolean active) { this.active = active; }
 }

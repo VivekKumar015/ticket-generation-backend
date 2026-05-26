@@ -8,13 +8,6 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    private static final String FETCH_ALL =
-        "SELECT t FROM Ticket t " +
-        "LEFT JOIN FETCH t.createdBy " +
-        "LEFT JOIN FETCH t.assignedTo " +
-        "LEFT JOIN FETCH t.project p " +
-        "LEFT JOIN FETCH p.shift ";
-
     @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.createdBy = :user")
     List<Ticket> findByCreatedBy(@Param("user") User user);
 
@@ -29,9 +22,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift")
     List<Ticket> findAllWithDetails();
-
-    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.status = :status")
-    List<Ticket> findByStatus(@Param("status") TicketStatus status);
 
     Long countByStatus(TicketStatus status);
     Long countByPriority(Priority priority);
@@ -50,7 +40,4 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     );
 
     Boolean existsByTicketNumber(String ticketNumber);
-
-    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.slaStatus = :slaStatus")
-    List<Ticket> findBySlaStatus(@Param("slaStatus") SlaStatus slaStatus);
 }

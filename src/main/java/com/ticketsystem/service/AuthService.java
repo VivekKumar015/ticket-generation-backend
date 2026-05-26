@@ -53,13 +53,14 @@ public class AuthService {
         Role role = roleRepository.findByName(roleName)
             .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
 
-        User user = User.builder()
-            .firstName(req.getFirstName()).lastName(req.getLastName())
-            .email(req.getEmail()).phone(req.getPhone())
-            .department(req.getDepartment())
-            .password(passwordEncoder.encode(req.getPassword()))
-            .active(true).build();
-
+        User user = new User();
+        user.setFirstName(req.getFirstName());
+        user.setLastName(req.getLastName());
+        user.setEmail(req.getEmail());
+        user.setPhone(req.getPhone());
+        user.setDepartment(req.getDepartment());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setActive(true);
         user.getRoles().add(role);
         userRepository.save(user);
         return "User registered successfully";

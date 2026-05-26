@@ -1,6 +1,7 @@
 package com.ticketsystem.service;
 
 import com.ticketsystem.entity.*;
+import com.ticketsystem.enums.TicketStatus;
 import com.ticketsystem.enums.SlaStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

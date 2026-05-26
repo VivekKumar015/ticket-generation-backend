@@ -1,16 +1,12 @@
 package com.ticketsystem.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -39,7 +35,6 @@ public class User {
     @JoinTable(name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id"))
-    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
@@ -52,4 +47,27 @@ public class User {
 
     @PreUpdate
     protected void onUpdate() { updatedAt = LocalDateTime.now(); }
+
+    // GETTERS
+    public Long getId() { return id; }
+    public String getFirstName() { return firstName; }
+    public String getLastName() { return lastName; }
+    public String getEmail() { return email; }
+    public String getPassword() { return password; }
+    public String getPhone() { return phone; }
+    public String getDepartment() { return department; }
+    public Boolean getActive() { return active; }
+    public Set<Role> getRoles() { return roles; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // SETTERS
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPassword(String password) { this.password = password; }
+    public void setPhone(String phone) { this.phone = phone; }
+    public void setDepartment(String department) { this.department = department; }
+    public void setActive(Boolean active) { this.active = active; }
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
 }
