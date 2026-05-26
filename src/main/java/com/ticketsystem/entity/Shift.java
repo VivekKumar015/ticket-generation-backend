@@ -2,15 +2,16 @@ package com.ticketsystem.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "projects")
+@Table(name = "shifts")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Project {
+public class Shift {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,28 +20,20 @@ public class Project {
     @Column(nullable = false)
     private String name;
 
-    private String projectCode;
-    private String description;
-    private String supportEmail;
+    @Column(nullable = false)
+    private LocalTime startTime;
+
+    @Column(nullable = false)
+    private LocalTime endTime;
 
     @Builder.Default
-    private Integer slaHours = 24;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shift_id")
-    private Shift shift;
+    private String timezone = "Asia/Kolkata";
 
     @Builder.Default
     private Boolean active = true;
 
-    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() { createdAt = LocalDateTime.now(); }
-
-    @PreUpdate
-    protected void onUpdate() { updatedAt = LocalDateTime.now(); }
 }

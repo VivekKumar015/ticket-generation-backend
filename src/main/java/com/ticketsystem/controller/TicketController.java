@@ -32,7 +32,8 @@ public class TicketController {
             @PathVariable Long id,
             @RequestBody TicketRequest req,
             @AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok(ticketService.updateTicket(id, req, user.getUsername()));
+        return ResponseEntity.ok(
+            ticketService.updateTicket(id, req, user.getUsername()));
     }
 
     @GetMapping
@@ -40,25 +41,39 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.getAllTickets());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
+        return ResponseEntity.ok(ticketService.getTicketById(id));
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<TicketResponse>> getMyTickets(
             @AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok(ticketService.getTicketsByUser(user.getUsername()));
+        return ResponseEntity.ok(
+            ticketService.getTicketsByUser(user.getUsername()));
     }
 
     @GetMapping("/assigned")
     public ResponseEntity<List<TicketResponse>> getAssignedTickets(
             @AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok(ticketService.getTicketsByEmployee(user.getUsername()));
+        return ResponseEntity.ok(
+            ticketService.getTicketsByEmployee(user.getUsername()));
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<TicketResponse>> getTicketsByProject(
+            @PathVariable Long projectId) {
+        return ResponseEntity.ok(ticketService.getTicketsByProject(projectId));
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<TicketResponse>> searchTickets(
             @RequestParam(required = false) TicketStatus status,
             @RequestParam(required = false) Priority priority,
+            @RequestParam(required = false) Long projectId,
             @RequestParam(required = false) Long assignedToId,
             @RequestParam(required = false) String search) {
         return ResponseEntity.ok(
-            ticketService.searchTickets(status, priority, assignedToId, search));
+            ticketService.searchTickets(status, priority, projectId, assignedToId, search));
     }
 }

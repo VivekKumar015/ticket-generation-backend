@@ -17,8 +17,13 @@ public class TicketResponse {
     private Priority priority;
     private TicketStatus status;
     private SupportLevel supportLevel;
+    private SlaStatus slaStatus;
+    private LocalDateTime slaBreachTime;
+    private Double workingHoursResolution;
+    private Long projectId;
     private String projectName;
     private String createdByName;
+    private Long assignedToId;
     private String assignedToName;
     private String resolutionDetails;
     private String remarks;

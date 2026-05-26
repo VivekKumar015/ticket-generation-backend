@@ -19,7 +19,7 @@ public class Ticket {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String ticketNumber;   // e.g. TKT-2024-001
+    private String ticketNumber;
 
     @Column(nullable = false)
     private String title;
@@ -37,6 +37,10 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     private SupportLevel supportLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private SlaStatus slaStatus = SlaStatus.WITHIN_SLA;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
@@ -59,6 +63,10 @@ public class Ticket {
 
     private String remarks;
 
+    // SLA tracking
+    private LocalDateTime slaBreachTime;
+    private Double workingHoursResolution;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -66,16 +74,19 @@ public class Ticket {
     private LocalDateTime responseAt;
     private LocalDateTime resolvedAt;
 
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<Attachment> attachments = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        status = TicketStatus.OPEN;
+        if (status == null) status = TicketStatus.OPEN;
+        if (slaStatus == null) slaStatus = SlaStatus.WITHIN_SLA;
     }
 
     @PreUpdate

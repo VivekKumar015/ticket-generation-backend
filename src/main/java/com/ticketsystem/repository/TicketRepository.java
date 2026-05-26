@@ -8,56 +8,49 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    @Query("SELECT t FROM Ticket t " +
-           "LEFT JOIN FETCH t.createdBy " +
-           "LEFT JOIN FETCH t.assignedTo " +
-           "LEFT JOIN FETCH t.project " +
-           "WHERE t.createdBy = :user")
+    private static final String FETCH_ALL =
+        "SELECT t FROM Ticket t " +
+        "LEFT JOIN FETCH t.createdBy " +
+        "LEFT JOIN FETCH t.assignedTo " +
+        "LEFT JOIN FETCH t.project p " +
+        "LEFT JOIN FETCH p.shift ";
+
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.createdBy = :user")
     List<Ticket> findByCreatedBy(@Param("user") User user);
 
-    @Query("SELECT t FROM Ticket t " +
-           "LEFT JOIN FETCH t.createdBy " +
-           "LEFT JOIN FETCH t.assignedTo " +
-           "LEFT JOIN FETCH t.project " +
-           "WHERE t.assignedTo = :employee")
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.assignedTo = :employee")
     List<Ticket> findByAssignedTo(@Param("employee") User employee);
 
-    @Query("SELECT t FROM Ticket t " +
-           "LEFT JOIN FETCH t.createdBy " +
-           "LEFT JOIN FETCH t.assignedTo " +
-           "LEFT JOIN FETCH t.project " +
-           "WHERE t.status = :status")
-    List<Ticket> findByStatus(@Param("status") TicketStatus status);
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.project = :project")
+    List<Ticket> findByProject(@Param("project") Project project);
 
-    @Query("SELECT t FROM Ticket t " +
-           "LEFT JOIN FETCH t.createdBy " +
-           "LEFT JOIN FETCH t.assignedTo " +
-           "LEFT JOIN FETCH t.project")
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.project IN :projects")
+    List<Ticket> findByProjectIn(@Param("projects") List<Project> projects);
+
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift")
     List<Ticket> findAllWithDetails();
 
-    List<Ticket> findByPriority(Priority priority);
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.status = :status")
+    List<Ticket> findByStatus(@Param("status") TicketStatus status);
 
     Long countByStatus(TicketStatus status);
-
     Long countByPriority(Priority priority);
-
+    Long countByProject(Project project);
+    Long countByProjectAndStatus(Project project, TicketStatus status);
+    Long countByProjectAndPriority(Project project, Priority priority);
     Long countByAssignedTo(User employee);
 
-    @Query("SELECT t FROM Ticket t " +
-           "LEFT JOIN FETCH t.createdBy " +
-           "LEFT JOIN FETCH t.assignedTo " +
-           "LEFT JOIN FETCH t.project " +
-           "WHERE (:status IS NULL OR t.status = :status) " +
-           "AND (:priority IS NULL OR t.priority = :priority) " +
-           "AND (:assignedToId IS NULL OR t.assignedTo.id = :assignedToId) " +
-           "AND (:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%',:search,'%')) " +
-           "OR LOWER(t.ticketNumber) LIKE LOWER(CONCAT('%',:search,'%')))")
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE (:status IS NULL OR t.status = :status) AND (:priority IS NULL OR t.priority = :priority) AND (:projectId IS NULL OR t.project.id = :projectId) AND (:assignedToId IS NULL OR t.assignedTo.id = :assignedToId) AND (:search IS NULL OR LOWER(t.title) LIKE LOWER(CONCAT('%',:search,'%')) OR LOWER(t.ticketNumber) LIKE LOWER(CONCAT('%',:search,'%')))")
     List<Ticket> searchTickets(
         @Param("status") TicketStatus status,
         @Param("priority") Priority priority,
+        @Param("projectId") Long projectId,
         @Param("assignedToId") Long assignedToId,
         @Param("search") String search
     );
 
     Boolean existsByTicketNumber(String ticketNumber);
+
+    @Query("SELECT t FROM Ticket t LEFT JOIN FETCH t.createdBy LEFT JOIN FETCH t.assignedTo LEFT JOIN FETCH t.project p LEFT JOIN FETCH p.shift WHERE t.slaStatus = :slaStatus")
+    List<Ticket> findBySlaStatus(@Param("slaStatus") SlaStatus slaStatus);
 }
