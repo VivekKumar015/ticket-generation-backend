@@ -22,11 +22,10 @@ public class CommentService {
         User user = userRepository.findByEmail(userEmail)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Comment comment = Comment.builder()
-            .content(req.getContent())
-            .ticket(ticket)
-            .author(user)
-            .build();
+        Comment comment = new Comment();
+        comment.setContent(req.getContent());
+        comment.setTicket(ticket);
+        comment.setAuthor(user);
         return commentRepository.save(comment);
     }
 

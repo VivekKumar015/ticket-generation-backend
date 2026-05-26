@@ -39,14 +39,13 @@ public class ConfigurationService {
 
     @Transactional
     public ProjectResponse createProject(ProjectRequest req) {
-        Project project = Project.builder()
-            .name(req.getName())
-            .projectCode(req.getProjectCode())
-            .description(req.getDescription())
-            .supportEmail(req.getSupportEmail())
-            .slaHours(req.getSlaHours() != null ? req.getSlaHours() : 24)
-            .active(true)
-            .build();
+        Project project = new Project();
+        project.setName(req.getName());
+        project.setProjectCode(req.getProjectCode());
+        project.setDescription(req.getDescription());
+        project.setSupportEmail(req.getSupportEmail());
+        project.setSlaHours(req.getSlaHours() != null ? req.getSlaHours() : 24);
+        project.setActive(true);
 
         if (req.getShiftId() != null) {
             Shift shift = shiftRepository.findById(req.getShiftId()).orElse(null);
@@ -91,13 +90,12 @@ public class ConfigurationService {
 
     @Transactional
     public Shift createShift(ShiftRequest req) {
-        Shift shift = Shift.builder()
-            .name(req.getName())
-            .startTime(LocalTime.parse(req.getStartTime()))
-            .endTime(LocalTime.parse(req.getEndTime()))
-            .timezone(req.getTimezone() != null ? req.getTimezone() : "Asia/Kolkata")
-            .active(true)
-            .build();
+        Shift shift = new Shift();
+        shift.setName(req.getName());
+        shift.setStartTime(LocalTime.parse(req.getStartTime()));
+        shift.setEndTime(LocalTime.parse(req.getEndTime()));
+        shift.setTimezone(req.getTimezone() != null ? req.getTimezone() : "Asia/Kolkata");
+        shift.setActive(true);
         return shiftRepository.save(shift);
     }
 
@@ -134,12 +132,11 @@ public class ConfigurationService {
                     mapping.setRoleInProject(req.getRoleInProject());
                 empProjectRepository.save(mapping);
             } else {
-                EmployeeProjectMapping mapping = EmployeeProjectMapping.builder()
-                    .user(user)
-                    .project(project)
-                    .roleInProject(req.getRoleInProject())
-                    .active(true)
-                    .build();
+                EmployeeProjectMapping mapping = new EmployeeProjectMapping();
+                mapping.setUser(user);
+                mapping.setProject(project);
+                mapping.setRoleInProject(req.getRoleInProject());
+                mapping.setActive(true);
                 empProjectRepository.save(mapping);
             }
         }

@@ -17,11 +17,10 @@ public class ProjectService {
     }
 
     public Project createProject(String name, String description) {
-        Project project = Project.builder()
-            .name(name)
-            .description(description)
-            .active(true)
-            .build();
+        Project project = new Project();
+        project.setName(name);
+        project.setDescription(description);
+        project.setActive(true);
         return projectRepository.save(project);
     }
 }
