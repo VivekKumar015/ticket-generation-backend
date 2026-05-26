@@ -122,7 +122,7 @@ public class TicketService {
         // Update SLA status
         SlaStatus newSlaStatus = slaService.determineSlaStatus(
             ticket.getSlaBreachTime(), ticket.getStatus());
-        ticket.setSlaStatus(newSlaStatus);
+        // ticket.setSlaStatus(newSlaStatus);
 
         return mapToResponse(ticketRepository.save(ticket));
     }
@@ -144,8 +144,11 @@ public class TicketService {
             .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
         // Get all projects this employee is assigned to
+        // List<Project> employeeProjects = empProjectRepository.findByUserAndActiveTrue(emp)
+        //     .stream().map(EmployeeProjectMapping::getProject).collect(Collectors.toList());
+
         List<Project> employeeProjects = empProjectRepository.findByUserAndActiveTrue(emp)
-            .stream().map(EmployeeProjectMapping::getProject).collect(Collectors.toList());
+    .stream().map(m -> m.getProject()).collect(Collectors.toList());
 
         if (employeeProjects.isEmpty()) {
             return new ArrayList<>();
@@ -188,12 +191,23 @@ public class TicketService {
 
     private void logActivity(Ticket ticket, User user,
                               String action, String old, String newVal, String field) {
-        try {
-            activityLogRepository.save(ActivityLog.builder()
-                .ticket(ticket).performedBy(user)
-                .action(action).oldValue(old).newValue(newVal).fieldChanged(field)
-                .build());
-        } catch (Exception e) {
+        // try {
+        //     activityLogRepository.save(ActivityLog.builder()
+        //         .ticket(ticket).performedBy(user)
+        //         .action(action).oldValue(old).newValue(newVal).fieldChanged(field)
+        //         .build());
+        // }
+        try{
+            ActivityLog log = new ActivityLog();
+            log.setTicket(ticket);
+            log.setPerformedBy(user);
+            log.setAction(action);
+            log.setOldValue(old);
+            log.setNewValue(newVal);
+            log.setFieldChanged(field);
+            activityLogRepository.save(log);
+        }
+         catch (Exception e) {
             System.err.println("Failed to log activity: " + e.getMessage());
         }
     }
@@ -202,10 +216,18 @@ public class TicketService {
         try {
             String projectName = null;
             Long projectId = null;
-            if (t.getProject() != null) {
-                projectName = t.getProject().getName();
-                projectId = t.getProject().getId();
+            // if (t.getProject() != null) {
+            //     projectName = t.getProject().getName();
+            //     projectId = t.getProject().getId();
+            // }
+
+        try {
+            Project proj = t.getProject();
+            if (proj != null) {
+                projectName = proj.getName();
+                projectId = proj.getId();
             }
+        } catch (Exception ignored) {}
 
             String createdByName = null;
             if (t.getCreatedBy() != null) {
