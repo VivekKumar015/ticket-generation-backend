@@ -2,17 +2,11 @@ package com.ticketsystem.entity;
 
 import com.ticketsystem.enums.*;
 import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
 @Table(name = "tickets")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Ticket {
 
     @Id
@@ -40,7 +34,6 @@ public class Ticket {
     private SupportLevel supportLevel;
 
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     private SlaStatus slaStatus = SlaStatus.WITHIN_SLA;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,7 +56,6 @@ public class Ticket {
     private String resolutionDetails;
 
     private String remarks;
-
     private LocalDateTime slaBreachTime;
     private Double workingHoursResolution;
 
@@ -75,11 +67,9 @@ public class Ticket {
     private LocalDateTime resolvedAt;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
     private List<Attachment> attachments = new ArrayList<>();
 
     @PrePersist
@@ -91,4 +81,49 @@ public class Ticket {
 
     @PreUpdate
     protected void onUpdate() { updatedAt = LocalDateTime.now(); }
+
+    // ===== GETTERS =====
+    public Long getId() { return id; }
+    public String getTicketNumber() { return ticketNumber; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public String getCategory() { return category; }
+    public Priority getPriority() { return priority; }
+    public TicketStatus getStatus() { return status; }
+    public SupportLevel getSupportLevel() { return supportLevel; }
+    public SlaStatus getSlaStatus() { return slaStatus; }
+    public Project getProject() { return project; }
+    public User getCreatedBy() { return createdBy; }
+    public User getAssignedTo() { return assignedTo; }
+    public User getUpdatedBy() { return updatedBy; }
+    public String getResolutionDetails() { return resolutionDetails; }
+    public String getRemarks() { return remarks; }
+    public LocalDateTime getSlaBreachTime() { return slaBreachTime; }
+    public Double getWorkingHoursResolution() { return workingHoursResolution; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public LocalDateTime getResolvedAt() { return resolvedAt; }
+    public List<Comment> getComments() { return comments; }
+    public List<Attachment> getAttachments() { return attachments; }
+
+    // ===== SETTERS =====
+    public void setTicketNumber(String ticketNumber) { this.ticketNumber = ticketNumber; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
+    public void setCategory(String category) { this.category = category; }
+    public void setPriority(Priority priority) { this.priority = priority; }
+    public void setStatus(TicketStatus status) { this.status = status; }
+    public void setSupportLevel(SupportLevel supportLevel) { this.supportLevel = supportLevel; }
+    public void setSlaStatus(SlaStatus slaStatus) { this.slaStatus = slaStatus; }
+    public void setProject(Project project) { this.project = project; }
+    public void setCreatedBy(User createdBy) { this.createdBy = createdBy; }
+    public void setAssignedTo(User assignedTo) { this.assignedTo = assignedTo; }
+    public void setUpdatedBy(User updatedBy) { this.updatedBy = updatedBy; }
+    public void setResolutionDetails(String resolutionDetails) { this.resolutionDetails = resolutionDetails; }
+    public void setRemarks(String remarks) { this.remarks = remarks; }
+    public void setSlaBreachTime(LocalDateTime slaBreachTime) { this.slaBreachTime = slaBreachTime; }
+    public void setWorkingHoursResolution(Double workingHoursResolution) { this.workingHoursResolution = workingHoursResolution; }
+    public void setResolvedAt(LocalDateTime resolvedAt) { this.resolvedAt = resolvedAt; }
+    public void setComments(List<Comment> comments) { this.comments = comments; }
+    public void setAttachments(List<Attachment> attachments) { this.attachments = attachments; }
 }
