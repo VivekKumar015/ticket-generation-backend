@@ -8,7 +8,8 @@ import java.util.*;
 
 @Entity
 @Table(name = "tickets")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -63,7 +64,6 @@ public class Ticket {
 
     private String remarks;
 
-    // SLA tracking
     private LocalDateTime slaBreachTime;
     private Double workingHoursResolution;
 

@@ -1,15 +1,20 @@
 package com.ticketsystem.dto.request;
 
 import com.ticketsystem.enums.*;
-import jakarta.validation.constraints.*;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class TicketRequest {
+
     @NotBlank
     private String title;
+
     @NotBlank
     private String description;
+
     private String category;
     private Priority priority;
     private SupportLevel supportLevel;
