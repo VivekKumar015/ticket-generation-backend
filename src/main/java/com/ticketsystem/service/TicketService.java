@@ -277,4 +277,50 @@ public class TicketService {
             throw new RuntimeException("Failed to map ticket: " + e.getMessage());
         }
     }
+
+    public List<TicketResponse> getVisibleTickets(String email) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    // Check role
+    boolean isAdmin = user.getRoles().stream()
+        .anyMatch(r -> r.getName().name().equals("ROLE_SUPER_ADMIN"));
+    boolean isEmployee = user.getRoles().stream()
+        .anyMatch(r -> r.getName().name().equals("ROLE_SUPPORT_EMPLOYEE"));
+    boolean isUser = user.getRoles().stream()
+        .anyMatch(r -> r.getName().name().equals("ROLE_USER"));
+
+    if (isAdmin) {
+        // Admin sees ALL tickets
+        return ticketRepository.findAllWithDetails().stream()
+            .map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    if (isEmployee) {
+        // Employee sees ONLY tickets from their assigned projects
+        List<EmployeeProjectMapping> mappings =
+            empProjectRepository.findByUserAndActiveTrue(user);
+
+        List<Project> employeeProjects = new ArrayList<>();
+        for (EmployeeProjectMapping m : mappings) {
+            try {
+                Project p = m.getProject();
+                if (p != null) employeeProjects.add(p);
+            } catch (Exception ignored) {}
+        }
+
+        if (employeeProjects.isEmpty()) return new ArrayList<>();
+
+        return ticketRepository.findByProjectIn(employeeProjects).stream()
+            .map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    if (isUser) {
+        // Normal user sees ONLY their own tickets
+        return ticketRepository.findByCreatedBy(user).stream()
+            .map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    return new ArrayList<>();
+}
 }

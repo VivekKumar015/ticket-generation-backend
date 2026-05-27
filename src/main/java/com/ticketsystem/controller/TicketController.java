@@ -76,4 +76,11 @@ public class TicketController {
         return ResponseEntity.ok(
             ticketService.searchTickets(status, priority, projectId, assignedToId, search));
     }
+
+    @GetMapping("/my-visible")
+    public ResponseEntity<List<TicketResponse>> getVisibleTickets(
+        @AuthenticationPrincipal UserDetails userDetails) {
+            return ResponseEntity.ok(
+        ticketService.getVisibleTickets(userDetails.getUsername()));
+}
 }
