@@ -13,10 +13,20 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
+import com.ticketsystem.dto.request.EmployeeRequest;
+import com.ticketsystem.entity.Role;
+
+import com.ticketsystem.repository.RoleRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.util.LinkedHashMap;
+
 @Service
 @RequiredArgsConstructor
 public class ConfigurationService {
 
+    private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ShiftRepository shiftRepository;
@@ -236,4 +246,132 @@ public class ConfigurationService {
             .createdAt(p.getCreatedAt())
             .build();
     }
+
+    // ===== EMPLOYEE CRUD =====
+
+public List<Map<String, Object>> getAllUsersWithRoles() {
+    return userRepository.findAll().stream()
+        .map(u -> {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("id", u.getId());
+            map.put("firstName", u.getFirstName());
+            map.put("lastName", u.getLastName());
+            map.put("email", u.getEmail());
+            map.put("phone", u.getPhone());
+            map.put("department", u.getDepartment());
+            map.put("active", u.getActive());
+            String role = u.getRoles().stream()
+                .map(r -> r.getName().name())
+                .findFirst().orElse("ROLE_USER");
+            map.put("role", role);
+            List<String> projects = empProjectRepository
+                .findByUserAndActiveTrue(u).stream()
+                .map(m -> m.getProject().getName())
+                .collect(Collectors.toList());
+            map.put("assignedProjects", projects);
+            map.put("createdAt", u.getCreatedAt());
+            return map;
+        }).collect(Collectors.toList());
+}
+
+@Transactional
+public Map<String, Object> createEmployee(EmployeeRequest req) {
+    if (userRepository.existsByEmail(req.getEmail())) {
+        throw new RuntimeException("Email already registered");
+    }
+
+    RoleName roleName = (req.getRole() != null)
+        ? RoleName.valueOf(req.getRole()) : RoleName.ROLE_SUPPORT_EMPLOYEE;
+
+    Role role = roleRepository.findByName(roleName)
+        .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+    User user = new User();
+    user.setFirstName(req.getFirstName());
+    user.setLastName(req.getLastName());
+    user.setEmail(req.getEmail());
+    user.setPhone(req.getPhone());
+    user.setDepartment(req.getDepartment());
+    user.setPassword(passwordEncoder.encode(
+        req.getPassword() != null ? req.getPassword() : "Welcome@123"));
+    user.setActive(true);
+    user.getRoles().add(role);
+    User saved = userRepository.save(user);
+
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("id", saved.getId());
+    map.put("firstName", saved.getFirstName());
+    map.put("lastName", saved.getLastName());
+    map.put("email", saved.getEmail());
+    map.put("role", roleName.name());
+    map.put("active", saved.getActive());
+    return map;
+}
+
+@Transactional
+public Map<String, Object> updateEmployee(Long id, EmployeeRequest req) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if (req.getFirstName() != null) user.setFirstName(req.getFirstName());
+    if (req.getLastName() != null) user.setLastName(req.getLastName());
+    if (req.getPhone() != null) user.setPhone(req.getPhone());
+    if (req.getDepartment() != null) user.setDepartment(req.getDepartment());
+    if (req.getActive() != null) user.setActive(req.getActive());
+    if (req.getPassword() != null && !req.getPassword().isEmpty()) {
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+    }
+
+    if (req.getRole() != null) {
+        RoleName newRoleName = RoleName.valueOf(req.getRole());
+        Role newRole = roleRepository.findByName(newRoleName)
+            .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        user.getRoles().clear();
+        user.getRoles().add(newRole);
+    }
+
+    User saved = userRepository.save(user);
+    String role = saved.getRoles().stream()
+        .map(r -> r.getName().name())
+        .findFirst().orElse("ROLE_USER");
+
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("id", saved.getId());
+    map.put("firstName", saved.getFirstName());
+    map.put("lastName", saved.getLastName());
+    map.put("email", saved.getEmail());
+    map.put("phone", saved.getPhone());
+    map.put("department", saved.getDepartment());
+    map.put("role", role);
+    map.put("active", saved.getActive());
+    return map;
+}
+
+@Transactional
+public String deleteEmployee(Long id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    // Remove from all project mappings first
+    List<EmployeeProjectMapping> mappings =
+        empProjectRepository.findByUserAndActiveTrue(user);
+    mappings.forEach(m -> {
+        m.setActive(false);
+        empProjectRepository.save(m);
+    });
+
+    // Deactivate instead of hard delete for data integrity
+    user.setActive(false);
+    userRepository.save(user);
+    return "Employee deactivated successfully";
+}
+
+@Transactional
+public String toggleEmployeeStatus(Long id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    user.setActive(!user.getActive());
+    userRepository.save(user);
+    return user.getActive() ? "Employee activated" : "Employee deactivated";
+}
 }

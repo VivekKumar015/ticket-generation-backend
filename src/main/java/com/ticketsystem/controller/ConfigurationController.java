@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import com.ticketsystem.dto.request.EmployeeRequest;
 
 @RestController
 @RequestMapping("/api/config")
@@ -109,4 +110,41 @@ public class ConfigurationController {
     public ResponseEntity<List<Map<String, Object>>> getAllEmployees() {
         return ResponseEntity.ok(configService.getAllEmployees());
     }
+
+
+    // ===== EMPLOYEE CRUD =====
+
+@GetMapping("/users")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
+public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
+    return ResponseEntity.ok(configService.getAllUsersWithRoles());
+}
+
+@PostMapping("/employees/create")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
+public ResponseEntity<Map<String, Object>> createEmployee(
+        @RequestBody EmployeeRequest req) {
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(configService.createEmployee(req));
+}
+
+@PutMapping("/employees/{id}")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
+public ResponseEntity<Map<String, Object>> updateEmployee(
+        @PathVariable Long id,
+        @RequestBody EmployeeRequest req) {
+    return ResponseEntity.ok(configService.updateEmployee(id, req));
+}
+
+@DeleteMapping("/employees/{id}")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
+public ResponseEntity<String> deleteEmployee(@PathVariable Long id) {
+    return ResponseEntity.ok(configService.deleteEmployee(id));
+}
+
+@PatchMapping("/employees/{id}/toggle-status")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
+public ResponseEntity<String> toggleEmployeeStatus(@PathVariable Long id) {
+    return ResponseEntity.ok(configService.toggleEmployeeStatus(id));
+}
 }
